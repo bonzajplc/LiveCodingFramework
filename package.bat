@@ -1,0 +1,1 @@
+"C:\Program Files\7-Zip\7z.exe" -pliveCoding -mhe -mx3 a -t7z liveCoding.7z .\* -xr!?svn* -xr!*build\* -xr!*.sdf -xr!*.pdb -xr!*.ilk -xr!*.suo -xr!*.hlslc -xr!*.ipch -xr!*.user

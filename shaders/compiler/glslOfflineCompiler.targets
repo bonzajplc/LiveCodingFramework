@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="glslCompiler">
+      <Targets>GlslOfflineCompiler</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+    TaskName="glslCompiler"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+    Name="GlslOfflineCompiler"
+    BeforeTargets="$(glslCompilerBeforeTargets)"
+    AfterTargets="$(glslCompilerAfterTargets)"
+    Condition="'@(glslCompiler)' != ''"
+    DependsOnTargets="$(glslCompilerDependsOn);ComputeglslCompilerOutput"
+    Outputs="@(glslCompiler-&gt;Metadata('Outputs')-&gt;Distinct())"
+    Inputs="@(glslCompiler);%(glslCompiler.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <glslCompiler
+        Remove="@(glslCompiler)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <glslCompiler_tlog
+        Include="%(glslCompiler.Outputs)"
+        Condition="'%(glslCompiler.Outputs)' != '' and '%(glslCompiler.ExcludedFromBuild)' != 'true'">
+        <Source>@(glslCompiler, '|')</Source>
+      </glslCompiler_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(glslCompiler.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(glslCompiler_tlog)' != '' and '%(glslCompiler_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(glslCompiler_tlog.Source);@(glslCompiler_tlog-&gt;'%(Fullpath)')" />
+    <glslCompiler
+      Condition="'@(glslCompiler)' != '' and '%(glslCompiler.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(glslCompiler.CommandLineTemplate)"
+      ObjectFileName="%(glslCompiler.ObjectFileName)"
+      AdditionalOptions="%(glslCompiler.AdditionalOptions)"
+      Inputs="@(glslCompiler)" />
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeglslCompilerOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeglslCompilerOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeglslCompilerOutput"
+    Condition="'@(glslCompiler)' != ''">
+    <ItemGroup>
+      <glslCompilerDirsToMake
+        Condition="'@(glslCompiler)' != '' and '%(glslCompiler.ExcludedFromBuild)' != 'true'"
+        Include="%(glslCompiler.Outputs)" />
+      <Link
+        Include="%(glslCompilerDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(glslCompilerDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(glslCompilerDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(glslCompilerDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+
+</Project>

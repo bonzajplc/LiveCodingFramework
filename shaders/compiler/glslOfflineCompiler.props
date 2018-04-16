@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+    Condition="'$(glslCompilerBeforeTargets)' == '' and '$(glslCompilerAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <glslCompilerBeforeTargets>Midl</glslCompilerBeforeTargets>
+    <glslCompilerAfterTargets>CustomBuild</glslCompilerAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <glslCompilerDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(glslCompilerDependsOn)</glslCompilerDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <glslCompiler>
+      <ObjectFileName>$(IntDir)%(Filename).fxo</ObjectFileName>
+      <CommandLineTemplate>"..\..\bin\liveCodingGlslCompiler.exe" [inputs]</CommandLineTemplate>
+      <Outputs>%(ObjectFileName)</Outputs>
+      <ExecutionDescription>%(Identity)</ExecutionDescription>
+    </glslCompiler>
+  </ItemDefinitionGroup>
+  
+</Project>
